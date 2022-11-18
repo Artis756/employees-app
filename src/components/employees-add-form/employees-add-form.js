@@ -35,13 +35,15 @@ class EmployeesAddForm extends Component {
 						placeholder="Как его зовут?"
 						value={name}
 						onChange={this.onChange}
-						name='name' />
+						name='name'
+						required />
 					<input type="number"
 						className="form-control new-post-label"
 						placeholder="З/П в $?"
 						value={salary}
 						onChange={this.onChange}
-						name='salary' />
+						name='salary'
+						required />
 
 					<button type="submit"
 						className="btn btn-outline-light"

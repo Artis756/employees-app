@@ -12,10 +12,12 @@ class App extends Component {
 		super(props);
 		this.state = {
 			data: [
-				{ name: 'John A.', salary: '1023', increase: false, id: 0 },
-				{ name: 'Barbara S.', salary: '1242', increase: true, id: 1 },
-				{ name: 'Bob D.', salary: '4212', increase: false, id: 2 },
-			]
+				{ name: 'John A.', salary: '1023', increase: false, rise: false, id: 0 },
+				{ name: 'Barbara S.', salary: '1242', increase: true, rise: false, id: 1 },
+				{ name: 'Bob D.', salary: '4212', increase: false, rise: false, id: 2 },
+			],
+			term: '',
+			filter: 'all'
 		};
 		this.maxId = 4
 	}
@@ -28,23 +30,65 @@ class App extends Component {
 		const emp = {
 			name, salary,
 			increase: false,
+			rise: false,
 			id: this.maxId++
 		}
 		this.setState({ data: [...this.state.data, emp] })
 	}
 
+	onToggleProp = (prop, id) => {
+		this.setState(({ data }) => ({
+			data: data.map((item) => {
+				if (item.id === id) {
+					return { ...item, [prop]: !item[prop] }
+				} else {
+					return { ...item }
+				}
+			})
+		}))
+	}
+
+	searchEmp = (term, data) => {
+		if (!term.length) return data;
+		return data.filter(item => item.name.toLowerCase().indexOf(term.toLowerCase()) > -1)
+	}
+
+	onSearch = (e) => {
+		this.setState({ term: e.target.value })
+	}
+
+	onFilter = (filter) => {
+		this.setState({ filter })
+	}
+
+	filterEmp = (filter, data) => {
+		switch (filter) {
+			case 'rise':
+				return data.filter(item => item.rise)
+			case 'moreThan1000':
+				return data.filter(item => item.salary > 1000)
+			default:
+				return data
+		}
+	}
+
+
 	render() {
-		const { data } = this.state;
+		const { data, term, filter } = this.state;
+		const totalEmps = data.length;
+		const increased = data.filter(item => item.increase).length;
+		const filteredData = this.filterEmp(filter, this.searchEmp(term, data));
+
 		return (
 			<div className="app" >
-				<AppInfo />
+				<AppInfo totalEmps={totalEmps} increased={increased} />
 
 				<div className="search-panel">
-					<SearchPanel />
-					<AppFilter />
+					<SearchPanel onSearch={this.onSearch} term={term} />
+					<AppFilter filter={filter} onFilter={this.onFilter} />
 				</div>
 
-				<EmployeesList data={data} onDelete={this.onDelete} />
+				<EmployeesList data={filteredData} onDelete={this.onDelete} onToggleProp={this.onToggleProp} />
 				<EmployeesAddForm onAdd={this.onAdd} />
 			</div>
 		);
